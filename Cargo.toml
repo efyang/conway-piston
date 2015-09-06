@@ -1,0 +1,10 @@
+[package]
+name = "conway-piston"
+version = "0.1.0"
+authors = ["honorabrutroll <edward.yang6771@gmail.com>"]
+[dependencies] 
+piston = "0.1.5"
+pistoncore-glutin_window = "0.2.0"
+piston2d-graphics = "0.1.4"
+piston2d-opengl_graphics = "0.1.0"
+rand = "*"
