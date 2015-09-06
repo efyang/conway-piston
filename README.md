@@ -4,6 +4,7 @@ Conway's Game of Life using Piston
 ### Controls:
 * Esc => Exit
 * R => Reset to previous seed
+* G => New random seed
 
 ### Todo: 
 * Parallel Checking

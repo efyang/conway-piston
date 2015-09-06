@@ -12,7 +12,7 @@ use piston::input::keyboard::Key;
 const TITLE: &'static str = "Conway's Game of Life";
 const BOARD_WIDTH: usize = 100;
 const BOARD_HEIGHT: usize = 100;
-const TILE_SIZE: f64 = 8.0;
+const TILE_SIZE: f64 = 5.0;
 const UPDATE_TIME: f64 = 0.05;
 
 fn main() {
@@ -106,6 +106,7 @@ impl Game {
     fn key_press(&mut self, key: Key) {
         match key {
             Key::R => {self.values = self.seed.clone()},
+            Key::G => {self.randomize_values()},
             _ => {}
         }
     }
@@ -144,5 +145,13 @@ impl Game {
             }
             return false;
         }
+    }
+
+    fn randomize_values(&mut self) {
+        let newseed: Vec<Vec<bool>> = (0..self.dimensions[1])
+            .map(|_| (0..self.dimensions[0]).map(|_| rand::random()).collect::<Vec<bool>>())
+            .collect::<Vec<Vec<bool>>>(); 
+        self.seed = newseed.clone();
+        self.values = newseed.clone();
     }
 }
