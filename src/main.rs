@@ -9,10 +9,12 @@ extern crate num_cpus;
 
 use graphics::*;
 use opengl_graphics::{ GlGraphics, OpenGL };
-use piston::event::*;
-use piston::input::keyboard::Key;
+use piston::input::*;
+use piston::event_loop::*;
 use std::thread;
 use std::sync::mpsc::channel;
+use glutin_window::GlutinWindow;
+use piston::window::WindowSettings;
 
 const TITLE: &'static str = "Conway's Game of Life";
 const BOARD_WIDTH: usize = 200;
@@ -21,17 +23,19 @@ const TILE_SIZE: f64 = 4.5;
 const UPDATE_TIME: f64 = 0.03;
 
 fn main() {
-    use glutin_window::GlutinWindow as Window;
-    use piston::window::WindowSettings;
 
     let window_dimensions: [u32; 2] = [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32];
-
-    let window = Window::new(
-        WindowSettings::new(TITLE,
-                            window_dimensions)
-            .exit_on_esc(true));
     
-    let mut gfx = GlGraphics::new(OpenGL::_3_2);
+    let opengl = OpenGL::V3_2;
+
+    let window: GlutinWindow = 
+        WindowSettings::new(TITLE, window_dimensions)
+        .exit_on_esc(true)
+        .opengl(opengl)
+        .build()
+        .unwrap();
+    
+    let mut gfx = GlGraphics::new(opengl);
 
     let mut game = Game::new(BOARD_WIDTH, BOARD_HEIGHT);
 
