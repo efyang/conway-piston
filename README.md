@@ -10,4 +10,4 @@ Conway's Game of Life using Piston
 * ~~Parallel Checking~~
 * Saving and reading seeds
 
-Uses MattWoelk's snake-piston as a template (piston examples aren't very good)
+Uses MattWoelk's snake-piston and xairy's rust-sudoku as a general template (piston examples aren't very good)
