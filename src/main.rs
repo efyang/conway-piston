@@ -1,34 +1,41 @@
+#![feature(append)]
+
 extern crate piston;
 extern crate graphics;
 extern crate glutin_window;
 extern crate opengl_graphics;
 extern crate rand;
+extern crate num_cpus;
 
 use graphics::*;
 use opengl_graphics::{ GlGraphics, OpenGL };
 use piston::event::*;
 use piston::input::keyboard::Key;
+use std::thread;
+use std::sync::mpsc::channel;
 
 const TITLE: &'static str = "Conway's Game of Life";
-const BOARD_WIDTH: usize = 100;
-const BOARD_HEIGHT: usize = 100;
-const TILE_SIZE: f64 = 5.0;
-const UPDATE_TIME: f64 = 0.05;
+const BOARD_WIDTH: usize = 200;
+const BOARD_HEIGHT: usize = 150;
+const TILE_SIZE: f64 = 4.5;
+const UPDATE_TIME: f64 = 0.03;
 
 fn main() {
     use glutin_window::GlutinWindow as Window;
     use piston::window::WindowSettings;
 
-    let dimensions: [u32; 2] = [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32];
+    let window_dimensions: [u32; 2] = [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32];
 
     let window = Window::new(
         WindowSettings::new(TITLE,
-                            dimensions)
+                            window_dimensions)
             .exit_on_esc(true));
     
     let mut gfx = GlGraphics::new(OpenGL::_3_2);
 
     let mut game = Game::new(BOARD_WIDTH, BOARD_HEIGHT);
+
+    let max_threads: usize = num_cpus::get();
     
     for e in window.events() {
         use piston::input::Button;
@@ -42,7 +49,7 @@ fn main() {
         }
 
         if let Some(args) = e.update_args() {
-            game.update(args.dt);
+            game.update(args.dt, max_threads);
         } 
     }
 }
@@ -87,19 +94,58 @@ impl Game {
         }
     }
 
-    fn update(&mut self, dt: f64) {
+    fn update(&mut self, dt: f64, max_threads: usize) {
         self.time += dt;
 
         if self.time > self.update_time {
             self.time -= self.update_time;
             //check alive and update
-            let mut buffer_vals = self.values.clone();
-            for y in 0..self.dimensions[1] {
-                for x in 0..self.dimensions[0] {
-                    buffer_vals[x][y] = self.is_alive(&(x, y));
+            let mut buffer_vals: Vec<(usize, Vec<Vec<bool>>)> = Vec::new();
+            
+            let mut startblock: usize = 0;
+            let blocksize: usize = BOARD_HEIGHT as usize / max_threads;
+            let mut endblock: usize = blocksize.clone();
+
+            //for y in 0..self.dimensions[1] {
+                //for x in 0..self.dimensions[0] {
+                    //buffer_vals[x][y] = self.is_alive(&(x, y));
+                //}
+            //}
+            let (tx, rx) = channel();
+
+            for tnum in 0usize..max_threads {
+                let tx = tx.clone();
+                //let startblock = startblock.clone();
+                //let endblock = endblock.clone();
+                let values: Vec<Vec<bool>> = self.values.clone();
+                let dimensions: [usize; 2] = self.dimensions.clone();
+                if tnum == max_threads - 1 {
+                    endblock = BOARD_HEIGHT;
                 }
+                thread::spawn(move || {
+                    let mut data: Vec<Vec<bool>> = Vec::new();
+                    for y in startblock..endblock {
+                        data.push((0..dimensions[0])
+                                  .map(|x| Game::is_alive(&values, &(x, y), &dimensions))
+                                  .collect::<Vec<bool>>()); 
+                    }
+                    tx.send((tnum, data)).unwrap();
+                });
+                startblock += blocksize;
+                endblock += blocksize;
             }
-            self.values = buffer_vals.clone();
+            for _ in 0..max_threads {
+                buffer_vals.push(rx.recv().unwrap());
+            }
+            buffer_vals.sort_by(|a, b| (a.0).cmp(&b.0));
+
+            let mut valbuf: Vec<Vec<bool>> = Vec::new();
+            //self.values.clear();
+            for data in buffer_vals {
+                valbuf.append(&mut data.1.clone());
+            }
+            self.values = valbuf.clone();
+
         }
     }
 
@@ -125,13 +171,13 @@ impl Game {
         collected
     }
 
-    fn is_alive(&mut self, idx: &(usize, usize)) -> bool {
-        let neighbors = Game::get_neighbors(idx, &self.dimensions);
+    fn is_alive(values: &Vec<Vec<bool>>, idx: &(usize, usize), dimensions: &[usize; 2]) -> bool {
+        let neighbors = Game::get_neighbors(idx, &dimensions);
         let statuses: Vec<bool> = neighbors.iter()
-            .map(|i| self.values[i.0][i.1])
+            .map(|i| values[i.1][i.0])
             .collect();
         let live: usize = statuses.iter().fold(0usize, |acc, &item| if item { acc + 1 } else {acc});
-        if self.values[idx.0][idx.1] {
+        if values[idx.1][idx.0] {
             //if cell is already alive 
             if live < 2 || live > 3 {
                 return false;

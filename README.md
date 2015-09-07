@@ -7,7 +7,7 @@ Conway's Game of Life using Piston
 * G => New random seed
 
 ### Todo: 
-* Parallel Checking
+* ~~Parallel Checking~~
 * Saving and reading seeds
 
 Uses MattWoelk's snake-piston as a template (piston examples aren't very good)
