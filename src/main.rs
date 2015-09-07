@@ -7,6 +7,8 @@ extern crate opengl_graphics;
 extern crate rand;
 extern crate num_cpus;
 
+mod save;
+
 use graphics::*;
 use opengl_graphics::{ GlGraphics, OpenGL };
 use piston::input::*;
@@ -15,6 +17,7 @@ use std::thread;
 use std::sync::mpsc::channel;
 use glutin_window::GlutinWindow;
 use piston::window::WindowSettings;
+use save::*;
 
 const TITLE: &'static str = "Conway's Game of Life";
 const BOARD_WIDTH: usize = 200;
@@ -110,11 +113,6 @@ impl Game {
             let blocksize: usize = BOARD_HEIGHT as usize / max_threads;
             let mut endblock: usize = blocksize.clone();
 
-            //for y in 0..self.dimensions[1] {
-                //for x in 0..self.dimensions[0] {
-                    //buffer_vals[x][y] = self.is_alive(&(x, y));
-                //}
-            //}
             let (tx, rx) = channel();
 
             for tnum in 0usize..max_threads {
@@ -143,12 +141,10 @@ impl Game {
             }
             buffer_vals.sort_by(|a, b| (a.0).cmp(&b.0));
 
-            let mut valbuf: Vec<Vec<bool>> = Vec::new();
-            //self.values.clear();
+            self.values.clear();
             for data in buffer_vals {
-                valbuf.append(&mut data.1.clone());
+                self.values.append(&mut data.1.clone());
             }
-            self.values = valbuf.clone();
 
         }
     }
