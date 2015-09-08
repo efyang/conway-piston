@@ -1,5 +1,8 @@
+use std::fs::File;
+
 pub fn parse(filepath: &str) -> Vec<Vec<bool>> {
     //will be a commandline argument
+    let f = try!(File::open(filepath));
     unimplemented!();
 }
 
