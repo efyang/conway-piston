@@ -22,7 +22,7 @@ use save::*;
 const TITLE: &'static str = "Conway's Game of Life";
 const BOARD_WIDTH: usize = 200;
 const BOARD_HEIGHT: usize = 150;
-const TILE_SIZE: f64 = 4.5;
+const TILE_SIZE: f64 = 4.0;
 const UPDATE_TIME: f64 = 0.03;
 
 fn main() {
@@ -117,8 +117,6 @@ impl Game {
 
             for tnum in 0usize..max_threads {
                 let tx = tx.clone();
-                //let startblock = startblock.clone();
-                //let endblock = endblock.clone();
                 let values: Vec<Vec<bool>> = self.values.clone();
                 let dimensions: [usize; 2] = self.dimensions.clone();
                 if tnum == max_threads - 1 {
@@ -157,18 +155,36 @@ impl Game {
         }
     }
 
-    fn get_neighbors(idx: &(usize, usize), dimensions: &[usize; 2]) -> Vec<(usize, usize)> {
-        let mut collected = vec![((idx.0 + 1), idx.1), ((idx.0 - 1), idx.1),
-                                 (idx.0, (idx.1 + 1)), (idx.0, (idx.1 - 1)),
-                                 ((idx.0 + 1), (idx.1 + 1)), ((idx.0 - 1), (idx.1 + 1)),
-                                 ((idx.0 + 1), (idx.1 - 1)), ((idx.0 - 1), (idx.1 - 1))];
-        if idx.0 == 0 || idx.0 >= dimensions[0] - 1 {
-            collected = collected.iter().map(|x| ((x.0 % dimensions[0]), x.1)).collect();
+    fn get_neighbors(index: &(usize, usize), dimensions: &[usize; 2]) -> Vec<(usize, usize)> {
+        let idx: (isize, isize) = (index.0 as isize, index.1 as isize);
+        let mut collected: Vec<(isize, isize)> = vec![((idx.0 + 1), idx.1), ((idx.0 - 1), idx.1),
+                                                     (idx.0, (idx.1 + 1)), (idx.0, (idx.1 - 1)),
+                                                     ((idx.0 + 1), (idx.1 + 1)), ((idx.0 - 1), (idx.1 + 1)),
+                                                     ((idx.0 + 1), (idx.1 - 1)), ((idx.0 - 1), (idx.1 - 1))];
+        let mut newcollected: Vec<(usize, usize)> = collected.iter().map(|x| (x.0 as usize, x.1 as usize)).collect();
+        
+        //*****MAKE THIS PART MORE EFFICIENT LATER ON*****
+
+        if (idx.0 <= 0 || idx.0 >= dimensions[0] as isize - 1) && (idx.1 <= 0 || idx.1 >= dimensions[1] as isize - 1) {
+            newcollected = collected
+                .iter()
+                .map(|x| (((x.0 + (dimensions[0] as isize - 1)) % (dimensions[0] as isize - 1)) as usize, 
+                          ((x.1 + (dimensions[1] as isize - 1)) % (dimensions[1] as isize - 1)) as usize))
+                .collect();
         }
-        if idx.1 == 0 || idx.1 >= dimensions[1] - 1 {
-            collected = collected.iter().map(|x| (x.0, (x.1 % dimensions[1]))).collect();
+        else if idx.0 <= 0 || idx.0 >= dimensions[0] as isize - 1 {
+            newcollected = collected
+                .iter()
+                .map(|x| (((x.0 + (dimensions[0] as isize - 1)) % (dimensions[0] as isize - 1)) as usize, x.1 as usize))
+                .collect();
         }
-        collected
+        else if idx.1 <= 0 || idx.1 >= dimensions[1] as isize - 1 {
+            newcollected = collected
+                .iter()
+                .map(|x| (x.0 as usize, ((x.1 + (dimensions[1] as isize - 1)) % (dimensions[1] as isize - 1)) as usize))
+                .collect();
+        }
+        newcollected
     }
 
     fn is_alive(values: &Vec<Vec<bool>>, idx: &(usize, usize), dimensions: &[usize; 2]) -> bool {
