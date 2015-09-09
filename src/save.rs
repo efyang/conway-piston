@@ -1,8 +1,12 @@
 use std::fs::File;
+use std::io::prelude::*;
 
 pub fn parse(filepath: &str) -> Vec<Vec<bool>> {
     //will be a commandline argument
-    let f = try!(File::open(filepath));
+    let mut f = File::open(filepath).unwrap();
+    let mut data: String = String::new();
+    f.read_to_string(&mut data);
+    data = data.trim().to_string();
     unimplemented!();
 }
 
