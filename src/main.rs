@@ -161,29 +161,9 @@ impl Game {
                                                      (idx.0, (idx.1 + 1)), (idx.0, (idx.1 - 1)),
                                                      ((idx.0 + 1), (idx.1 + 1)), ((idx.0 - 1), (idx.1 + 1)),
                                                      ((idx.0 + 1), (idx.1 - 1)), ((idx.0 - 1), (idx.1 - 1))];
-        let mut newcollected: Vec<(usize, usize)> = collected.iter().map(|x| (x.0 as usize, x.1 as usize)).collect();
-        
-        //*****MAKE THIS PART MORE EFFICIENT LATER ON*****
-
-        if (idx.0 <= 0 || idx.0 >= dimensions[0] as isize - 1) && (idx.1 <= 0 || idx.1 >= dimensions[1] as isize - 1) {
-            newcollected = collected
-                .iter()
-                .map(|x| (((x.0 + (dimensions[0] as isize - 1)) % (dimensions[0] as isize - 1)) as usize, 
-                          ((x.1 + (dimensions[1] as isize - 1)) % (dimensions[1] as isize - 1)) as usize))
-                .collect();
-        }
-        else if idx.0 <= 0 || idx.0 >= dimensions[0] as isize - 1 {
-            newcollected = collected
-                .iter()
-                .map(|x| (((x.0 + (dimensions[0] as isize - 1)) % (dimensions[0] as isize - 1)) as usize, x.1 as usize))
-                .collect();
-        }
-        else if idx.1 <= 0 || idx.1 >= dimensions[1] as isize - 1 {
-            newcollected = collected
-                .iter()
-                .map(|x| (x.0 as usize, ((x.1 + (dimensions[1] as isize - 1)) % (dimensions[1] as isize - 1)) as usize))
-                .collect();
-        }
+        let mx: isize = dimensions[0] as isize - 1;
+        let my: isize = dimensions[1] as isize - 1;
+        let newcollected: Vec<(usize, usize)> = wrap_idxs(&collected, &mx, &my);
         newcollected
     }
 
@@ -215,5 +195,30 @@ impl Game {
             .collect::<Vec<Vec<bool>>>(); 
         self.seed = newseed.clone();
         self.values = newseed.clone();
+    }
+}
+
+fn wrap_idx(idx: &(isize, isize), mx: &isize, my: &isize) -> (usize, usize) {
+    let mut newidx = idx.clone();
+    if &newidx.0 <= &0isize || &newidx.0 >= mx {
+        newidx.0 = (&newidx.0 + mx) % mx;
+    }
+    if &newidx.1 <= &0isize || &newidx.1 >= my {
+        newidx.1 = (&newidx.1 + my) % my;
+    }
+    (newidx.0 as usize, newidx.1 as usize)
+}
+
+fn wrap_idxs(idxs: &Vec<(isize, isize)>, mx: &isize, my: &isize) -> Vec<(usize, usize)> {
+    idxs.iter()
+        .map(|idx| wrap_idx(&idx, mx, my))
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_wrapping() {
+        assert_eq!(vec![(1, 1), (2, 149)], super::wrap_idxs(&vec![(1, 1), (2, -1)], &200, &150 ))
     }
 }
