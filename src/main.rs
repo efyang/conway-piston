@@ -7,7 +7,7 @@ extern crate opengl_graphics;
 extern crate rand;
 extern crate num_cpus;
 
-mod save;
+//mod save;
 
 use graphics::*;
 use opengl_graphics::{ GlGraphics, OpenGL };
@@ -17,7 +17,7 @@ use std::thread;
 use std::sync::mpsc::channel;
 use glutin_window::GlutinWindow;
 use piston::window::WindowSettings;
-use save::*;
+//use save::*;
 
 const TITLE: &'static str = "Conway's Game of Life";
 const BOARD_WIDTH: usize = 200;
@@ -157,7 +157,7 @@ impl Game {
 
     fn get_neighbors(index: &(usize, usize), dimensions: &[usize; 2]) -> Vec<(usize, usize)> {
         let idx: (isize, isize) = (index.0 as isize, index.1 as isize);
-        let mut collected: Vec<(isize, isize)> = vec![((idx.0 + 1), idx.1), ((idx.0 - 1), idx.1),
+        let collected: Vec<(isize, isize)> = vec![((idx.0 + 1), idx.1), ((idx.0 - 1), idx.1),
                                                      (idx.0, (idx.1 + 1)), (idx.0, (idx.1 - 1)),
                                                      ((idx.0 + 1), (idx.1 + 1)), ((idx.0 - 1), (idx.1 + 1)),
                                                      ((idx.0 + 1), (idx.1 - 1)), ((idx.0 - 1), (idx.1 - 1))];

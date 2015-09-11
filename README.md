@@ -7,6 +7,7 @@ Conway's Game of Life using Piston
 * G => New random seed
 
 ### Todo: 
+* Change all vectors to arrays to take advantage of stack vs heap allocation
 * ~~Parallel Checking~~
 * Saving and reading seeds
 * Seed editing mode?
