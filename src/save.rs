@@ -1,5 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
+//decide on save format
+//csv?
 
 pub fn parse(filepath: &str) -> Vec<Vec<bool>> {
     //will be a commandline argument
