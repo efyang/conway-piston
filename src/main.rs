@@ -1,4 +1,7 @@
 #![feature(append)]
+#![feature(result_expect)]
+#![cfg_attr(test, allow(dead_code, unused_imports, unused_variables))]
+#![cfg_attr(tests, allow(dead_code, unused_imports, unused_variables))]
 
 extern crate piston;
 extern crate graphics;
@@ -6,8 +9,11 @@ extern crate glutin_window;
 extern crate opengl_graphics;
 extern crate rand;
 extern crate num_cpus;
+//use clap
+//if normal then width, height
+//if load then data file
 
-//mod save;
+mod save;
 
 use graphics::*;
 use opengl_graphics::{ GlGraphics, OpenGL };
@@ -17,11 +23,11 @@ use std::thread;
 use std::sync::mpsc::channel;
 use glutin_window::GlutinWindow;
 use piston::window::WindowSettings;
-//use save::*;
+use save::*;
 
 const TITLE: &'static str = "Conway's Game of Life";
-const BOARD_WIDTH: usize = 200;
-const BOARD_HEIGHT: usize = 150;
+pub const BOARD_WIDTH: usize = 200;
+pub const BOARD_HEIGHT: usize = 150;
 const TILE_SIZE: f64 = 4.0;
 const UPDATE_TIME: f64 = 0.03;
 
