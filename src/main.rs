@@ -1,5 +1,7 @@
 #![feature(append)]
 #![feature(result_expect)]
+#![feature(as_str)]
+#![feature(convert)]
 #![cfg_attr(test, allow(dead_code, unused_imports, unused_variables))]
 #![cfg_attr(tests, allow(dead_code, unused_imports, unused_variables))]
 

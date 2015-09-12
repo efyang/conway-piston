@@ -1,8 +1,19 @@
+use std::fs::File;
 use std::fs;
 use std::env;
 use std::io::prelude::*;
+use std::ffi::OsString;
 //decide on save format
 //just use 1 and 0 seperated by whitespace
+
+#[cfg(unix)]
+const LINE_END: &'static str = "\n";
+
+#[cfg(windows)]
+const LINE_END: &'static str = "\r\n";
+
+const ZERO: &'static str = "0";
+const ONE: &'static str = "1";
 
 pub fn parse(filepath: &str) -> Vec<Vec<bool>> {
     //will be a commandline argument
@@ -46,25 +57,80 @@ fn is_valid(data: &Vec<Vec<bool>>) -> bool {
     all_same(&widths)
 }
 
-pub fn save(filepath: &str, data: Vec<Vec<bool>>) {
+pub fn save(data: &Vec<Vec<bool>>) {
     //make save dir if not existing yet
     //get all files in savedir that contain savename
     //sort names
     //make new file by incremented highest
-    let cwd = env::current_dir().unwrap();
-    cwd.push(saves);
-    fs::create_dir_all(cwd);
-    env::set_current_dir(&cwd);
-    
+    //filenames will be in save<num>.seed format.
+    let mut entries = get_save_entries();
+    entries.sort();
 
-    unimplemented!();
+    let mut newsave: File;
+    let save_num: usize;
+    if entries.is_empty() {
+        save_num = 0;
+    }
+    else {
+        let last_save = entries.last()
+            .unwrap()
+            .to_str()
+            .unwrap();
+        save_num = last_save.chars()
+            .skip(4)
+            .take(last_save.len() - 9)
+            .collect::<String>()
+            .parse::<usize>()
+            .unwrap();
+    }
+    newsave = File::create(format!("save{}.seed", save_num + 1))
+        .expect("Failed to open file for writing");
+    newsave.write_all(data_to_string(data).as_bytes());
 }
 
-fn data_to_string(data: Vec<Vec<bool>>) -> String {
-    
+fn get_save_entries() -> Vec<OsString> {
+    let mut cwd = env::current_dir().unwrap();
+    cwd.push("saves");
+    fs::create_dir_all(&cwd).expect("Failed to make save directory.");
+    env::set_current_dir(&cwd).expect("Failed to cd to save directory.");
+    let mut entries = fs::read_dir(&cwd)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .filter(|entry| {let entrystr = entry.to_str().unwrap();
+                    entrystr.contains(".seed") && entrystr.contains("save")})
+            .collect::<Vec<OsString>>();
+    entries
 }
 
-pub fn clear_saves(savedir: &str) {
+fn data_to_string(data: &Vec<Vec<bool>>) -> String {
+    let mut serialized: String = "".to_string();
+    for row in data {
+        serialized = serialized + row.iter()
+                                     .map(|v| bool_to_str(v))
+                                     .collect::<Vec<&str>>()
+                                     .join(" ")
+                                     .to_owned()
+                                     .as_str() + LINE_END;
+        serialized = serialized.chars()
+            .take(serialized.len() - LINE_END.len())
+            .collect::<String>();
+    }
+    serialized
+}
+
+fn bool_to_str(data: &bool) -> &'static str {
+    if *data {
+        ZERO
+    } 
+    else {
+        ONE
+    }
+} 
+
+pub fn clear_saves() {
+    for file in get_save_entries() {
+        fs::remove_file(&file).expect("Failed to delete save file.");
+    }
     unimplemented!();
 }
 
