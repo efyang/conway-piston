@@ -1,6 +1,5 @@
 #![feature(append)]
 #![feature(result_expect)]
-#![feature(as_str)]
 #![feature(convert)]
 #![cfg_attr(test, allow(dead_code, unused_imports, unused_variables))]
 #![cfg_attr(tests, allow(dead_code, unused_imports, unused_variables))]
@@ -27,14 +26,16 @@ use glutin_window::GlutinWindow;
 use piston::window::WindowSettings;
 
 const TITLE: &'static str = "Conway's Game of Life";
-pub const BOARD_WIDTH: usize = 200;
-pub const BOARD_HEIGHT: usize = 150;
 const TILE_SIZE: f64 = 4.0;
 const UPDATE_TIME: f64 = 0.03;
 
 fn main() {
+    let width: usize; 
+    let height: usize;
 
-    let window_dimensions: [u32; 2] = [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32];
+    width = 200;
+    height = 200;
+    let window_dimensions: [u32; 2] = [width as u32 * TILE_SIZE as u32, height as u32 * TILE_SIZE as u32];
     
     let opengl = OpenGL::V3_2;
 
@@ -47,7 +48,7 @@ fn main() {
     
     let mut gfx = GlGraphics::new(opengl);
 
-    let mut game = Game::new(BOARD_WIDTH, BOARD_HEIGHT);
+    let mut game = Game::new(width, height);
 
     let max_threads: usize = num_cpus::get();
     
@@ -115,11 +116,9 @@ impl Game {
             self.time -= self.update_time;
             //check alive and update
             let mut buffer_vals: Vec<(usize, Vec<Vec<bool>>)> = Vec::new();
-            
             let mut startblock: usize = 0;
-            let blocksize: usize = BOARD_HEIGHT as usize / max_threads;
+            let blocksize: usize = self.dimensions[1] as usize / max_threads;
             let mut endblock: usize = blocksize.clone();
-
             let (tx, rx) = channel();
 
             for tnum in 0usize..max_threads {
@@ -127,7 +126,7 @@ impl Game {
                 let values: Vec<Vec<bool>> = self.values.clone();
                 let dimensions: [usize; 2] = self.dimensions.clone();
                 if tnum == max_threads - 1 {
-                    endblock = BOARD_HEIGHT;
+                    endblock = self.dimensions[1];
                 }
                 thread::spawn(move || {
                     let mut data: Vec<Vec<bool>> = Vec::new();
@@ -150,7 +149,6 @@ impl Game {
             for data in buffer_vals {
                 self.values.append(&mut data.1.clone());
             }
-
         }
     }
 
@@ -161,6 +159,11 @@ impl Game {
             Key::S => {save::save(&self.seed)},
             _ => {}
         }
+    }
+
+    fn load_data(&mut self, data: &Vec<Vec<bool>>) {
+        self.seed = data.to_owned();
+        self.values = data.to_owned();
     }
 
     fn get_neighbors(index: &(usize, usize), dimensions: &[usize; 2]) -> Vec<(usize, usize)> {

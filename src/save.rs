@@ -83,7 +83,7 @@ pub fn save(data: &Vec<Vec<bool>>) {
             .parse::<usize>()
             .unwrap();
     }
-    let mut cwd = env::current_dir().unwrap();
+    let cwd = env::current_dir().unwrap();
     let mut savecwd = cwd.to_owned();
     savecwd.push("saves");
     env::set_current_dir(&savecwd).expect("Failed to cd to save directory.");
@@ -94,12 +94,12 @@ pub fn save(data: &Vec<Vec<bool>>) {
 }
 
 fn get_save_entries() -> Vec<OsString> {
-    let mut cwd = env::current_dir().unwrap();
+    let cwd = env::current_dir().unwrap();
     let mut savecwd = cwd.to_owned();
     savecwd.push("saves");
     fs::create_dir_all(&savecwd).expect("Failed to make save directory.");
     env::set_current_dir(&savecwd).expect("Failed to cd to save directory.");
-    let mut entries = fs::read_dir(&savecwd)
+    let entries = fs::read_dir(&savecwd)
             .unwrap()
             .map(|entry| entry.unwrap().file_name())
             .filter(|entry| {let entrystr = entry.to_str().unwrap();
