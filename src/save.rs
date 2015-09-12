@@ -12,8 +12,8 @@ const LINE_END: &'static str = "\n";
 #[cfg(windows)]
 const LINE_END: &'static str = "\r\n";
 
-const ZERO: &'static str = "0";
-const ONE: &'static str = "1";
+const FALSE: &'static str = ".";
+const TRUE: &'static str = "O";
 
 pub fn parse(filepath: &str) -> Vec<Vec<bool>> {
     //will be a commandline argument
@@ -36,8 +36,8 @@ pub fn parse(filepath: &str) -> Vec<Vec<bool>> {
 
 fn str_to_bool(val: &str) -> Option<bool> {
     match val {
-        "0" => Some(false),
-        "1" => Some(true),
+        TRUE => Some(true),
+        FALSE => Some(false),
         _ => None,
     }
 }
@@ -83,22 +83,29 @@ pub fn save(data: &Vec<Vec<bool>>) {
             .parse::<usize>()
             .unwrap();
     }
+    let mut cwd = env::current_dir().unwrap();
+    let mut savecwd = cwd.to_owned();
+    savecwd.push("saves");
+    env::set_current_dir(&savecwd).expect("Failed to cd to save directory.");
     newsave = File::create(format!("save{}.seed", save_num + 1))
         .expect("Failed to open file for writing");
-    newsave.write_all(data_to_string(data).as_bytes());
+    newsave.write_all(data_to_string(data).as_bytes()).expect("Save write failed.");
+    env::set_current_dir(&cwd).expect("Failed to cd to root directory.");
 }
 
 fn get_save_entries() -> Vec<OsString> {
     let mut cwd = env::current_dir().unwrap();
-    cwd.push("saves");
-    fs::create_dir_all(&cwd).expect("Failed to make save directory.");
-    env::set_current_dir(&cwd).expect("Failed to cd to save directory.");
-    let mut entries = fs::read_dir(&cwd)
+    let mut savecwd = cwd.to_owned();
+    savecwd.push("saves");
+    fs::create_dir_all(&savecwd).expect("Failed to make save directory.");
+    env::set_current_dir(&savecwd).expect("Failed to cd to save directory.");
+    let mut entries = fs::read_dir(&savecwd)
             .unwrap()
             .map(|entry| entry.unwrap().file_name())
             .filter(|entry| {let entrystr = entry.to_str().unwrap();
                     entrystr.contains(".seed") && entrystr.contains("save")})
             .collect::<Vec<OsString>>();
+    env::set_current_dir(&cwd).expect("Failed to cd to root directory.");
     entries
 }
 
@@ -111,19 +118,19 @@ fn data_to_string(data: &Vec<Vec<bool>>) -> String {
                                      .join(" ")
                                      .to_owned()
                                      .as_str() + LINE_END;
-        serialized = serialized.chars()
+    }
+    serialized = serialized.chars()
             .take(serialized.len() - LINE_END.len())
             .collect::<String>();
-    }
     serialized
 }
 
 fn bool_to_str(data: &bool) -> &'static str {
     if *data {
-        ZERO
+        TRUE
     } 
     else {
-        ONE
+        FALSE
     }
 } 
 

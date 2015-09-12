@@ -25,7 +25,6 @@ use std::thread;
 use std::sync::mpsc::channel;
 use glutin_window::GlutinWindow;
 use piston::window::WindowSettings;
-use save::*;
 
 const TITLE: &'static str = "Conway's Game of Life";
 pub const BOARD_WIDTH: usize = 200;
@@ -159,6 +158,7 @@ impl Game {
         match key {
             Key::R => {self.values = self.seed.clone()},
             Key::G => {self.randomize_values()},
+            Key::S => {save::save(&self.seed)},
             _ => {}
         }
     }
