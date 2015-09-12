@@ -42,7 +42,7 @@ fn main() {
         .about("Conway's Game of Life implemented in Piston")
         .args_from_usage("-w --width=[WIDTH] 'optional - Sets a custom width for the default program.'
                          -h --height=[HEIGHT] 'optional - Sets a custom height for the default program.'
-                         -s --seed=[SEED] 'optional - Sets the seed file to use (overrides width and height)'")
+                         <SEED> 'optional - Sets the seed file to use (overrides width and height)'")
         .get_matches();
     if let Some(_) = matches.value_of("SEED") {
         userseed = true;

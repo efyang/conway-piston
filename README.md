@@ -5,6 +5,8 @@ Conway's Game of Life using Piston
 * Esc => Exit
 * R => Reset to previous seed
 * G => New random seed
+* S => Save Seed
+* C => Delete all saved seeds
 
 ### Todo: 
 * ~~Change all vectors to arrays to take advantage of stack vs heap allocation~~ (Breaks far too much)
