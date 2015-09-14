@@ -107,12 +107,19 @@ fn main() {
             game.key_press(key);
         }
 
+        if let Some(Button::Mouse(button)) = e.press_args() {
+            println!("Mouse button {:?} pressed", button);
+        }
+
         if let Some(args) = e.update_args() {
             match game.mode {
                 Mode::Normal => game.update(args.dt, max_threads),
-                Mode::Pause => {thread::sleep_ms((UPDATE_TIME * 100.0f64) as u32)},
-                Mode::Edit => {
-                    //detect mouse click
+                Mode::Pause  => {
+                    game.time += args.dt;
+                    thread::sleep_ms((UPDATE_TIME * 100.0f64) as u32)},
+                Mode::Edit   => {
+                    game.time += args.dt;
+                    thread::sleep_ms((UPDATE_TIME * 100.0f64) as u32);
                 },
             }
         } 
@@ -120,10 +127,6 @@ fn main() {
 }
 
 //game modes
-struct Normal;
-struct Pause;
-struct Edit;
-
 enum Mode {
     Normal,
     Pause,
