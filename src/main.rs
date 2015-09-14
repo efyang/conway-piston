@@ -124,9 +124,6 @@ struct Game {
 
 impl Game {
     fn new(width: usize, height: usize) -> Game {
-        //let newseed: Vec<Vec<bool>> = (0..height)
-            //.map(|_| (0..width).map(|_| rand::random()).collect::<Vec<bool>>())
-            //.collect::<Vec<Vec<bool>>>();
         let newseed: Vec<Vec<bool>> = (0..height)
             .map(|_| (0..width).map(|_| true).collect::<Vec<bool>>())
             .collect::<Vec<Vec<bool>>>();
