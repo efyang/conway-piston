@@ -226,7 +226,20 @@ impl Game {
             _ => {}
         }
     }
+    
+    fn mouse_to_grid(xy: &[f64; 2]) -> [usize; 2] {
+        [(xy[0] / TILE_SIZE) as usize,
+        (xy[0] / TILE_SIZE) as usize]
+    }
 
+    fn toggle_coord(&mut self, coords: &[usize; 2]) {
+        if self.values[coords[1]][coords[0]] {
+            self.values[coords[1]][coords[0]] = false;
+        }
+        else {
+            self.values[coords[1]][coords[0]] = true;
+        }
+    }
 }
 
 fn is_alive(values: &Vec<Vec<bool>>, idx: &(usize, usize), dimensions: &[usize; 2]) -> bool {
