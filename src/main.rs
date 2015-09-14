@@ -11,9 +11,6 @@ extern crate opengl_graphics;
 extern crate rand;
 extern crate num_cpus;
 extern crate clap;
-//use clap
-//if normal then width, height
-//if load then data file
 
 mod save;
 
@@ -111,9 +108,26 @@ fn main() {
         }
 
         if let Some(args) = e.update_args() {
-            game.update(args.dt, max_threads);
+            match game.mode {
+                Mode::Normal => game.update(args.dt, max_threads),
+                Mode::Pause => {thread::sleep_ms((UPDATE_TIME * 100.0f64) as u32)},
+                Mode::Edit => {
+                    //detect mouse click
+                },
+            }
         } 
     }
+}
+
+//game modes
+struct Normal;
+struct Pause;
+struct Edit;
+
+enum Mode {
+    Normal,
+    Pause,
+    Edit,
 }
 
 struct Game {
@@ -122,6 +136,7 @@ struct Game {
     dimensions: [usize; 2],
     time: f64,
     update_time: f64,
+    mode: Mode,
 }
 
 impl Game {
@@ -135,6 +150,7 @@ impl Game {
             dimensions: [width, height],
             time: UPDATE_TIME,
             update_time: UPDATE_TIME,
+            mode: Mode::Normal,
         }
     }
  
@@ -223,6 +239,9 @@ impl Game {
             Key::G => {self.randomize_values()},
             Key::S => {save::save(&self.seed)},
             Key::C => {save::clear_saves()},
+            Key::E => {self.mode = Mode::Edit},
+            Key::P => {self.mode = Mode::Pause},
+            Key::N => {self.mode = Mode::Normal},
             _ => {}
         }
     }
