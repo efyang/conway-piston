@@ -9,7 +9,7 @@ Conway's Game of Life using Piston
 * C => Delete all saved seeds
 
 ### Todo: 
-* ~~Change all vectors to arrays to take advantage of stack vs heap allocation~~ (Breaks far too much)
+* ~~Change all vectors to arrays to take advantage of stack vs heap allocation~~ all values in rust are default stack allocated
 * ~~Parallel Checking~~
 * Saving and reading seeds
 * Seed editing mode?
