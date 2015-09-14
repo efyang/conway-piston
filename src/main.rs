@@ -56,9 +56,7 @@ fn main() {
         }
         else {
             width = 200;
-        }
-    } 
-    else {
+        } } else {
         width = 200;
     }
     if let Some(h) = matches.value_of("HEIGHT") {
@@ -160,7 +158,7 @@ impl Game {
         if self.time > self.update_time {
             self.time -= self.update_time;
             //check alive and update
-            let mut buffer_vals: Vec<(usize, Vec<Vec<bool>>)> = Vec::new();
+            let mut buffer_vals: Vec<(usize, Vec<Vec<bool>>)> = Vec::with_capacity(self.dimensions[1]);
             let mut startblock: usize = 0;
             let blocksize: usize = self.dimensions[1] as usize / max_threads;
             let mut endblock: usize = blocksize.clone();
@@ -194,6 +192,7 @@ impl Game {
             for data in buffer_vals {
                 self.values.append(&mut data.1.clone());
             }
+            self.values.reserve(0);
         }
     }
 
@@ -210,6 +209,8 @@ impl Game {
     fn load_data(&mut self, data: &Vec<Vec<bool>>) {
         self.seed = data.to_owned();
         self.values = data.to_owned();
+        self.seed.reserve(0);
+        self.values.reserve(0);
     }
 
     fn get_neighbors(index: &(usize, usize), dimensions: &[usize; 2]) -> Vec<(usize, usize)> {
@@ -252,6 +253,8 @@ impl Game {
             .collect::<Vec<Vec<bool>>>(); 
         self.seed = newseed.clone();
         self.values = newseed.clone();
+        self.seed.reserve(0);
+        self.values.reserve(0);
     }
 }
 
