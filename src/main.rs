@@ -44,6 +44,7 @@ fn main() {
                          -h --height=[HEIGHT] 'optional - Sets a custom height for the default program.'
                          -s --seed=[SEED] 'optional - Sets the seed file to use (overrides width and height)'")
         .get_matches();
+    //setup dimensions
     if let Some(_) = matches.value_of("SEED") {
         userseed = true;
     } 
@@ -73,6 +74,7 @@ fn main() {
 
     let window_dimensions: [u32; 2] = [width as u32 * TILE_SIZE as u32, height as u32 * TILE_SIZE as u32];
     
+    //game setup
     let opengl = OpenGL::V3_2;
 
     let window: GlutinWindow = 
@@ -85,7 +87,8 @@ fn main() {
     let mut gfx = GlGraphics::new(opengl);
 
     let mut game = Game::new(width, height);
-     
+    
+    //set initial values
     if userseed {
         game.load_data(&save::parse(&matches.value_of("SEED").unwrap()));
     }
@@ -94,7 +97,8 @@ fn main() {
     }
 
     let max_threads: usize = num_cpus::get();
-    
+
+    //update loop
     for e in window.events() {
         use piston::input::Button;
         if let Some(args) = e.render_args() {
@@ -132,6 +136,23 @@ impl Game {
             time: UPDATE_TIME,
             update_time: UPDATE_TIME,
         }
+    }
+ 
+    fn randomize_values(&mut self) {
+        let newseed: Vec<Vec<bool>> = (0..self.dimensions[1])
+            .map(|_| (0..self.dimensions[0]).map(|_| rand::random()).collect::<Vec<bool>>())
+            .collect::<Vec<Vec<bool>>>(); 
+        self.seed = newseed.clone();
+        self.values = newseed.clone();
+        self.seed.reserve(0);
+        self.values.reserve(0);
+    }
+
+    fn load_data(&mut self, data: &Vec<Vec<bool>>) {
+        self.seed = data.to_owned();
+        self.values = data.to_owned();
+        self.seed.reserve(0);
+        self.values.reserve(0);
     }
 
     fn render(&mut self, t: math::Matrix2d, gfx: &mut GlGraphics) {
@@ -175,7 +196,7 @@ impl Game {
                     let mut data: Vec<Vec<bool>> = Vec::new();
                     for y in startblock..endblock {
                         data.push((0..dimensions[0])
-                                  .map(|x| Game::is_alive(&values, &(x, y), &dimensions))
+                                  .map(|x| is_alive(&values, &(x, y), &dimensions))
                                   .collect::<Vec<bool>>()); 
                     }
                     tx.send((tnum, data)).unwrap();
@@ -206,56 +227,40 @@ impl Game {
         }
     }
 
-    fn load_data(&mut self, data: &Vec<Vec<bool>>) {
-        self.seed = data.to_owned();
-        self.values = data.to_owned();
-        self.seed.reserve(0);
-        self.values.reserve(0);
-    }
+}
 
-    fn get_neighbors(index: &(usize, usize), dimensions: &[usize; 2]) -> Vec<(usize, usize)> {
-        let idx: (isize, isize) = (index.0 as isize, index.1 as isize);
-        let collected: Vec<(isize, isize)> = vec![((idx.0 + 1), idx.1), ((idx.0 - 1), idx.1),
-                                                     (idx.0, (idx.1 + 1)), (idx.0, (idx.1 - 1)),
-                                                     ((idx.0 + 1), (idx.1 + 1)), ((idx.0 - 1), (idx.1 + 1)),
-                                                     ((idx.0 + 1), (idx.1 - 1)), ((idx.0 - 1), (idx.1 - 1))];
-        let mx: isize = dimensions[0] as isize - 1;
-        let my: isize = dimensions[1] as isize - 1;
-        let newcollected: Vec<(usize, usize)> = wrap_idxs(&collected, &mx, &my);
-        newcollected
-    }
-
-    fn is_alive(values: &Vec<Vec<bool>>, idx: &(usize, usize), dimensions: &[usize; 2]) -> bool {
-        let neighbors = Game::get_neighbors(idx, &dimensions);
-        let statuses: Vec<bool> = neighbors.iter()
-            .map(|i| values[i.1][i.0])
-            .collect();
-        let live: usize = statuses.iter().fold(0usize, |acc, &item| if item { acc + 1 } else {acc});
-        if values[idx.1][idx.0] {
-            //if cell is already alive 
-            if live < 2 || live > 3 {
-                return false;
-            }
-            return true; 
-        }
-        else {
-            //if cell is dead
-            if live == 3 {
-                return true;
-            }
+fn is_alive(values: &Vec<Vec<bool>>, idx: &(usize, usize), dimensions: &[usize; 2]) -> bool {
+    let neighbors = get_neighbors(idx, &dimensions);
+    let statuses: Vec<bool> = neighbors.iter()
+        .map(|i| values[i.1][i.0])
+        .collect();
+    let live: usize = statuses.iter().fold(0usize, |acc, &item| if item { acc + 1 } else {acc});
+    if values[idx.1][idx.0] {
+        //if cell is already alive 
+        if live < 2 || live > 3 {
             return false;
         }
+        return true; 
     }
+    else {
+        //if cell is dead
+        if live == 3 {
+            return true;
+        }
+        return false;
+    }
+}
 
-    fn randomize_values(&mut self) {
-        let newseed: Vec<Vec<bool>> = (0..self.dimensions[1])
-            .map(|_| (0..self.dimensions[0]).map(|_| rand::random()).collect::<Vec<bool>>())
-            .collect::<Vec<Vec<bool>>>(); 
-        self.seed = newseed.clone();
-        self.values = newseed.clone();
-        self.seed.reserve(0);
-        self.values.reserve(0);
-    }
+fn get_neighbors(index: &(usize, usize), dimensions: &[usize; 2]) -> Vec<(usize, usize)> {
+    let idx: (isize, isize) = (index.0 as isize, index.1 as isize);
+    let collected: Vec<(isize, isize)> = vec![((idx.0 + 1), idx.1), ((idx.0 - 1), idx.1),
+                                                 (idx.0, (idx.1 + 1)), (idx.0, (idx.1 - 1)),
+                                                 ((idx.0 + 1), (idx.1 + 1)), ((idx.0 - 1), (idx.1 + 1)),
+                                                 ((idx.0 + 1), (idx.1 - 1)), ((idx.0 - 1), (idx.1 - 1))];
+    let mx: isize = dimensions[0] as isize - 1;
+    let my: isize = dimensions[1] as isize - 1;
+    let newcollected: Vec<(usize, usize)> = wrap_idxs(&collected, &mx, &my);
+    newcollected
 }
 
 fn wrap_idx(idx: &(isize, isize), mx: &isize, my: &isize) -> (usize, usize) {
