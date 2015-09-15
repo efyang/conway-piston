@@ -248,6 +248,7 @@ impl Game {
             Key::R => {self.values = self.seed.clone()},
             Key::G => {self.randomize_values()},
             Key::S => {save::save(&self.seed)},
+            Key::V => {save::save(&self.values)},
             Key::C => {save::clear_saves()},
             Key::E => {self.mode = Mode::Edit},
             Key::P => {self.mode = Mode::Pause},
