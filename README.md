@@ -17,6 +17,6 @@ Conway's Game of Life using Piston
 * ~~Parallel Checking~~
 * ~~Saving and reading seeds~~
 * ~~Seed editing mode~~
-* Commandline arguments for starting mode
+* ~~Commandline arguments for starting mode~~
 
 Uses MattWoelk's snake-piston and xairy's rust-sudoku as a general template (piston examples aren't very good)
