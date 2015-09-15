@@ -132,11 +132,9 @@ fn main() {
                 Mode::Normal => game.update(args.dt, max_threads),
                 Mode::Pause  => {
                     game.time += args.dt;
-                    //thread::sleep_ms((UPDATE_TIME * 10.0f64) as u32)
                 },
                 Mode::Edit   => {
                     game.time += args.dt;
-                    thread::sleep_ms((UPDATE_TIME * 100.0f64) as u32);
                 },
             }
         } 
