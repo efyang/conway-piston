@@ -1,6 +1,6 @@
 [package]
 name = "conway-piston"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["honorabrutroll <edward.yang6771@gmail.com>"]
 [dependencies] 
 piston = "0.10.1"
