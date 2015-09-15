@@ -25,8 +25,8 @@ use piston::window::WindowSettings;
 use clap::App;
 
 const TITLE: &'static str = "Conway's Game of Life";
-const TILE_SIZE: f64 = 4.0;
-const UPDATE_TIME: f64 = 0.03;
+const TILE_SIZE: f64 = 5.0;
+const UPDATE_TIME: f64 = 0.05;
 
 fn main() {
     let width: usize; 
@@ -107,8 +107,12 @@ fn main() {
             game.key_press(key);
         }
 
+        if let Some(coords) = e.mouse_cursor_args() {
+            game.mousecoords = coords;
+        }
+
         if let Some(Button::Mouse(button)) = e.press_args() {
-            println!("Mouse button {:?} pressed", button);
+            game.mouse_press(button)
         }
 
         if let Some(args) = e.update_args() {
@@ -116,7 +120,8 @@ fn main() {
                 Mode::Normal => game.update(args.dt, max_threads),
                 Mode::Pause  => {
                     game.time += args.dt;
-                    thread::sleep_ms((UPDATE_TIME * 100.0f64) as u32)},
+                    //thread::sleep_ms((UPDATE_TIME * 10.0f64) as u32)
+                },
                 Mode::Edit   => {
                     game.time += args.dt;
                     thread::sleep_ms((UPDATE_TIME * 100.0f64) as u32);
@@ -137,6 +142,7 @@ struct Game {
     seed: Vec<Vec<bool>>,
     values: Vec<Vec<bool>>,
     dimensions: [usize; 2],
+    mousecoords: [f64; 2],
     time: f64,
     update_time: f64,
     mode: Mode,
@@ -151,6 +157,7 @@ impl Game {
             seed: newseed.clone(),
             values: newseed.clone(),
             dimensions: [width, height],
+            mousecoords: [0f64 , 0f64],
             time: UPDATE_TIME,
             update_time: UPDATE_TIME,
             mode: Mode::Normal,
@@ -245,13 +252,28 @@ impl Game {
             Key::E => {self.mode = Mode::Edit},
             Key::P => {self.mode = Mode::Pause},
             Key::N => {self.mode = Mode::Normal},
-            _ => {}
+            _ => {},
         }
     }
     
-    fn mouse_to_grid(xy: &[f64; 2]) -> [usize; 2] {
+    //mouse functions
+
+    fn mouse_press(&mut self, button: MouseButton) {
+        match self.mode {
+            Mode::Edit => match button {
+                MouseButton::Left => {
+                    let mousecoords: [usize; 2] = Game::mouse_to_grid(self.mousecoords);
+                    self.toggle_coord(&mousecoords);
+                }
+                _ => {},
+            },
+            _ => {},
+        }
+    }
+    
+    fn mouse_to_grid(xy: [f64; 2]) -> [usize; 2] {
         [(xy[0] / TILE_SIZE) as usize,
-        (xy[0] / TILE_SIZE) as usize]
+        (xy[1] / TILE_SIZE) as usize]
     }
 
     fn toggle_coord(&mut self, coords: &[usize; 2]) {
