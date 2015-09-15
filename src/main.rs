@@ -39,7 +39,8 @@ fn main() {
         .about("Conway's Game of Life implemented in Piston")
         .args_from_usage("-w --width=[WIDTH] 'optional - Sets a custom width for the default program.'
                          -h --height=[HEIGHT] 'optional - Sets a custom height for the default program.'
-                         -s --seed=[SEED] 'optional - Sets the seed file to use (overrides width and height)'")
+                         -s --seed=[SEED] 'optional - Sets the seed file to use (overrides width and height)'
+                         -m --mode=[MODE] 'optional - Sets the starting mode to use - {default/normal, pause, edit}'")
         .get_matches();
     //setup dimensions
     if let Some(_) = matches.value_of("SEED") {
@@ -59,7 +60,7 @@ fn main() {
     }
     if let Some(h) = matches.value_of("HEIGHT") {
         if !userseed {
-            height = h.parse::<usize>().expect("Invalid height value.");
+            height = h.parse::<usize>().expect("Invalid height value.")
         } 
         else {
             height = 150;
@@ -84,6 +85,17 @@ fn main() {
     let mut gfx = GlGraphics::new(opengl);
 
     let mut game = Game::new(width, height);
+
+    if let Some(mode) = matches.value_of("MODE") {
+        let lowermode: String = mode.to_string().to_lowercase();
+        match lowermode.as_str() {
+            "default" => println!("Starting in Default/Normal mode."),
+            "normal" => println!("Starting in Default/Normal mode."),
+            "pause" => {game.mode = Mode::Pause; println!("Starting in Pause mode.")},
+            "edit" => {game.mode = Mode::Edit; println!("Starting in Edit mode.")},
+            _ => {},
+        }
+    }
     
     //set initial values
     if userseed {
