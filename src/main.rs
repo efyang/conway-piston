@@ -1,5 +1,4 @@
-#![feature(append)]
-#![feature(result_expect)]
+#![feature(append)] #![feature(result_expect)]
 #![feature(convert)]
 #![cfg_attr(test, allow(dead_code, unused_imports, unused_variables))]
 #![cfg_attr(tests, allow(dead_code, unused_imports, unused_variables))]
@@ -13,7 +12,7 @@ extern crate num_cpus;
 extern crate clap;
 
 mod save;
-mod colors;
+mod hex;
 
 use graphics::*;
 use opengl_graphics::{ GlGraphics, OpenGL };
@@ -33,6 +32,9 @@ fn main() {
     let width: usize; 
     let height: usize;
     let userseed: bool;
+    let dead: types::Color;
+    let alive: types::Color; 
+    //commandline doesnt take hashtags
 
     let matches = App::new("conway-piston")
         .version("1.2")
@@ -73,6 +75,25 @@ fn main() {
         height = 150;
     }
 
+    //setup colors
+    if let Some(hexstr) = matches.value_of("ALIVE") {
+        match hex::validate_hex(hexstr) {
+            Some(x) => {alive = color::hex(x);}
+            _ => {alive = color::BLACK;}
+        }
+    }
+    else {
+        alive = color::BLACK;
+    }
+    if let Some(hexstr) = matches.value_of("DEAD") {
+        match hex::validate_hex(hexstr) {
+            Some(x) => {dead = color::hex(x);}
+            _ => {dead = color::WHITE;}
+        } }
+    else {
+        dead = color::WHITE;   
+    }
+
     let window_dimensions: [u32; 2] = [width as u32 * TILE_SIZE as u32, height as u32 * TILE_SIZE as u32];
     
     //game setup
@@ -87,7 +108,7 @@ fn main() {
     
     let mut gfx = GlGraphics::new(opengl);
 
-    let mut game = Game::new(width, height);
+    let mut game = Game::new(width, height, dead, alive);
 
     if let Some(mode) = matches.value_of("MODE") {
         let lowermode: String = mode.to_string().to_lowercase();
@@ -155,6 +176,7 @@ struct Game {
     seed: Vec<Vec<bool>>,
     values: Vec<Vec<bool>>,
     dimensions: [usize; 2],
+    color_values: [types::Color; 2],
     mousecoords: [f64; 2],
     time: f64,
     update_time: f64,
@@ -162,7 +184,7 @@ struct Game {
 }
 
 impl Game {
-    fn new(width: usize, height: usize) -> Game {
+    fn new(width: usize, height: usize, dead: types::Color, alive: types::Color) -> Game {
         let newseed: Vec<Vec<bool>> = (0..height)
             .map(|_| (0..width).map(|_| true).collect::<Vec<bool>>())
             .collect::<Vec<Vec<bool>>>();
@@ -170,6 +192,7 @@ impl Game {
             seed: newseed.clone(),
             values: newseed.clone(),
             dimensions: [width, height],
+            color_values: [dead, alive],
             mousecoords: [0f64 , 0f64],
             time: UPDATE_TIME,
             update_time: UPDATE_TIME,
@@ -199,10 +222,12 @@ impl Game {
             for x in 0..self.dimensions[0] {
                 let status: types::Color;
                 if self.values[y][x] {
-                    status = color::BLACK;//alive
+                    //status = color::BLACK;//alive
+                    status = self.color_values[1];
                 }
                 else {
-                    status = color::WHITE;
+                    //status = color::WHITE;
+                    status = self.color_values[0];
                 }
                 rectangle(status,
                           rectangle::square(x as f64 * TILE_SIZE, y as f64 * TILE_SIZE, TILE_SIZE),
@@ -360,8 +385,8 @@ mod tests {
 
     #[test]
     fn test_hex_validation() {
-        assert!(super::colors::validate_hex("#FFFFFF"));
-        assert!(!super::colors::validate_hex("ljk"));
-        assert!(!super::colors::validate_hex("j00FFFF"))
+        assert!(super::hex::validate_hex("#FFFFFF").is_some());
+        assert!(super::hex::validate_hex("ljk").is_none());
+        assert!(super::hex::validate_hex("j00FFFF").is_none())
     }
 }
