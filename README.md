@@ -12,6 +12,13 @@ Conway's Game of Life using Piston
 * P => Pause
 * N => Normal/Default mode
 
+### Commandline Arguments:
+* -h --help - gives help documentation
+* -w --width - sets a custom window width
+* -h --height - sets a custom window height
+* -s --seed - sets a custom starting seed, overrides width and height
+* -m --mode - sets the starting mode to use: default/normal, pause, edit
+
 ### Todo: 
 * ~~Change all vectors to arrays to take advantage of stack vs heap allocation~~ all values in rust are default stack allocated
 * ~~Parallel Checking~~
