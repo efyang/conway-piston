@@ -13,6 +13,7 @@ extern crate num_cpus;
 extern crate clap;
 
 mod save;
+mod colors;
 
 use graphics::*;
 use opengl_graphics::{ GlGraphics, OpenGL };
