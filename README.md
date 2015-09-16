@@ -20,5 +20,6 @@ Conway's Game of Life using Piston
 * ~~Commandline arguments for starting mode~~
 * Commandline arguments for colors (hex)
 * Use defaults when panicking and just have error message
+* Have a "Quiet" flag (no print logging)
 
 Uses MattWoelk's snake-piston and xairy's rust-sudoku as a general template (piston examples aren't very good)
