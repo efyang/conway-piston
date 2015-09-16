@@ -25,7 +25,7 @@ Conway's Game of Life using Piston
 * ~~Saving and reading seeds~~
 * ~~Seed editing mode~~
 * ~~Commandline arguments for starting mode~~
-* Commandline arguments for colors (hex and name) (use https://github.com/codebrainz/color-names)
+* ~~Commandline arguments for colors (hex)~~
 * Use defaults when panicking and just have error message
 * Have a "Quiet" flag (no print logging)
 
