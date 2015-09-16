@@ -138,7 +138,6 @@ pub fn clear_saves() {
     for file in get_save_entries() {
         fs::remove_file(&file).expect("Failed to delete save file.");
     }
-    unimplemented!();
 }
 
 

@@ -35,13 +35,15 @@ fn main() {
     let userseed: bool;
 
     let matches = App::new("conway-piston")
-        .version("1.1")
+        .version("1.2")
         .author("Edward Yang <edward.yang6771@gmail.com>")
         .about("Conway's Game of Life implemented in Piston")
         .args_from_usage("-w --width=[WIDTH] 'optional - Sets a custom width for the default program.'
                          -h --height=[HEIGHT] 'optional - Sets a custom height for the default program.'
                          -s --seed=[SEED] 'optional - Sets the seed file to use (overrides width and height)'
-                         -m --mode=[MODE] 'optional - Sets the starting mode to use - {default/normal, pause, edit}'")
+                         -m --mode=[MODE] 'optional - Sets the starting mode to use - {default/normal, pause, edit}'
+                         -a --alive=[ALIVE] 'optional - Sets the hex color for live tiles'
+                         -d --dead=[DEAD] 'optional - Sets the hex color for dead tiles'")
         .get_matches();
     //setup dimensions
     if let Some(_) = matches.value_of("SEED") {
@@ -354,5 +356,12 @@ mod tests {
     #[test]
     fn test_wrapping() {
         assert_eq!(vec![(1, 1), (2, 149)], super::wrap_idxs(&vec![(1, 1), (2, -1)], &200, &150 ))
+    }
+
+    #[test]
+    fn test_hex_validation() {
+        assert!(super::colors::validate_hex("#FFFFFF"));
+        assert!(!super::colors::validate_hex("ljk"));
+        assert!(!super::colors::validate_hex("j00FFFF"))
     }
 }
