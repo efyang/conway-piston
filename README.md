@@ -18,6 +18,8 @@ Conway's Game of Life using Piston
 * -h --height - sets a custom window height
 * -s --seed - sets a custom starting seed, overrides width and height
 * -m --mode - sets the starting mode to use: default/normal, pause, edit
+* -a --alive - sets a hex color for live tiles
+* -d --dead - sets a hex color for dead tiles
 
 ### Todo: 
 * ~~Change all vectors to arrays to take advantage of stack vs heap allocation~~ all values in rust are default stack allocated
