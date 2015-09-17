@@ -37,7 +37,7 @@ fn main() {
     //commandline doesnt take hashtags
 
     let matches = App::new("conway-piston")
-        .version("1.2")
+        .version("1.3")
         .author("Edward Yang <edward.yang6771@gmail.com>")
         .about("Conway's Game of Life implemented in Piston")
         .args_from_usage("-w --width=[WIDTH] 'optional - Sets a custom width for the default program.'
