@@ -34,6 +34,7 @@ fn main() {
     let userseed: bool;
     let dead: types::Color;
     let alive: types::Color; 
+    let logging: bool;
     //commandline doesnt take hashtags
 
     let matches = App::new("conway-piston")
@@ -45,8 +46,17 @@ fn main() {
                          -s --seed=[SEED] 'optional - Sets the seed file to use (overrides width and height)'
                          -m --mode=[MODE] 'optional - Sets the starting mode to use - {default/normal, pause, edit}'
                          -a --alive=[ALIVE] 'optional - Sets the hex color for live tiles'
-                         -d --dead=[DEAD] 'optional - Sets the hex color for dead tiles'")
+                         -d --dead=[DEAD] 'optional - Sets the hex color for dead tiles'
+                         -q --quiet=[QUIET] 'optional - Toggles quiet mode (disabled by default)'")
         .get_matches();
+
+    if let Some(_) = matches.is_present("QUIET") {
+        logging = true;
+    } 
+    else {
+        logging = false;
+    }
+
     //setup dimensions
     if let Some(_) = matches.value_of("SEED") {
         userseed = true;
@@ -108,7 +118,7 @@ fn main() {
     
     let mut gfx = GlGraphics::new(opengl);
 
-    let mut game = Game::new(width, height, dead, alive);
+    let mut game = Game::new(width, height, dead, alive, logging);
 
     if let Some(mode) = matches.value_of("MODE") {
         let lowermode: String = mode.to_string().to_lowercase();
@@ -177,10 +187,11 @@ struct Game {
     time: f64,
     update_time: f64,
     mode: Mode,
+    logging: bool,
 }
 
 impl Game {
-    fn new(width: usize, height: usize, dead: types::Color, alive: types::Color) -> Game {
+    fn new(width: usize, height: usize, dead: types::Color, alive: types::Color, log: bool) -> Game {
         let newseed: Vec<Vec<bool>> = (0..height)
             .map(|_| (0..width).map(|_| true).collect::<Vec<bool>>())
             .collect::<Vec<Vec<bool>>>();
@@ -193,6 +204,7 @@ impl Game {
             time: UPDATE_TIME,
             update_time: UPDATE_TIME,
             mode: Mode::Normal,
+            logging: log,
         }
     }
  
