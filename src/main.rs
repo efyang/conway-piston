@@ -34,7 +34,6 @@ fn main() {
     let userseed: bool;
     let dead: types::Color;
     let alive: types::Color; 
-    let logging: bool;
     //commandline doesnt take hashtags
 
     let matches = App::new("conway-piston")
@@ -49,13 +48,6 @@ fn main() {
                          -d --dead=[DEAD] 'optional - Sets the hex color for dead tiles'
                          -q --quiet=[QUIET] 'optional - Toggles quiet mode (disabled by default)'")
         .get_matches();
-
-    if let Some(_) = matches.is_present("QUIET") {
-        logging = true;
-    } 
-    else {
-        logging = false;
-    }
 
     //setup dimensions
     if let Some(_) = matches.value_of("SEED") {
@@ -118,7 +110,7 @@ fn main() {
     
     let mut gfx = GlGraphics::new(opengl);
 
-    let mut game = Game::new(width, height, dead, alive, logging);
+    let mut game = Game::new(width, height, dead, alive);
 
     if let Some(mode) = matches.value_of("MODE") {
         let lowermode: String = mode.to_string().to_lowercase();
@@ -187,7 +179,6 @@ struct Game {
     time: f64,
     update_time: f64,
     mode: Mode,
-    logging: bool,
 }
 
 impl Game {
@@ -204,7 +195,6 @@ impl Game {
             time: UPDATE_TIME,
             update_time: UPDATE_TIME,
             mode: Mode::Normal,
-            logging: log,
         }
     }
  
