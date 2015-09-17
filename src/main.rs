@@ -182,7 +182,7 @@ struct Game {
 }
 
 impl Game {
-    fn new(width: usize, height: usize, dead: types::Color, alive: types::Color, log: bool) -> Game {
+    fn new(width: usize, height: usize, dead: types::Color, alive: types::Color) -> Game {
         let newseed: Vec<Vec<bool>> = (0..height)
             .map(|_| (0..width).map(|_| true).collect::<Vec<bool>>())
             .collect::<Vec<Vec<bool>>>();
