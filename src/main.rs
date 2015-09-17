@@ -154,12 +154,8 @@ fn main() {
         if let Some(args) = e.update_args() {
             match game.mode {
                 Mode::Normal => game.update(args.dt, max_threads),
-                Mode::Pause  => {
-                    game.time += args.dt;
-                },
-                Mode::Edit   => {
-                    game.time += args.dt;
-                },
+                Mode::Pause  => {},
+                Mode::Edit   => {},
             }
         } 
     }
