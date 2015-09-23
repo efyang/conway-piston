@@ -99,7 +99,7 @@ fn main() {
     let window_dimensions: [u32; 2] = [width as u32 * TILE_SIZE as u32, height as u32 * TILE_SIZE as u32];
     
     //game setup
-    let opengl = OpenGL::V3_2;
+    let opengl = OpenGL::V2_1;
 
     let window: GlutinWindow = 
         WindowSettings::new(TITLE, window_dimensions)
