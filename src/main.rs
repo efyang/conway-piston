@@ -133,7 +133,7 @@ fn main() {
     let max_threads: usize = num_cpus::get();
 
     //update loop
-    for e in window.events() {
+    for e in window.events().ups(10).max_fps(10) {
         use piston::input::Button;
         if let Some(args) = e.render_args() {
             let t = Context::new_viewport(args.viewport()).transform;
